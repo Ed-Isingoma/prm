@@ -4,10 +4,31 @@ const path = window.theDataPath.path
 
 const dataPath = ipcRenderer.sendSync('bringLink', '')
 let searchArr;//this is the samplespace for when searching
+//now, making the table2 divs alter colors
+function altCol() {
+    const selection = document.querySelectorAll('.table2 > .row')
+    const xSelection = []
+    selection.forEach(e=> {
+        if (e.style.display === "flex") xSelection.push(e)
+    })
+        for(let r=0; r<xSelection.length; r+=2) {
+            xSelection[r].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "rgb(241, 241, 243)")
+            if (xSelection[r+1]) xSelection[r+1].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "lightgrey");
+        }
+}
 pickEntries()
 const sadDiv = document.createElement('div')//div for when no search results
 sadDiv.className = 'sadDiv'
-
+let theId; //this is the id of the settimeout of function showinfo
+function showInfo() {
+    const theInfo = document.querySelector('.clearInfo')
+    theId = setTimeout(()=> {theInfo.style.display = "inline"}, 600)
+}
+function removeInfo() {
+    const theInfo = document.querySelector('.clearInfo')
+    theInfo.style.display = "none"
+    clearTimeout(theId)
+}
 function saveInput() {
     const clone = document.querySelector('.divs').cloneNode(true)
     const destinatn = [...clone.children]
@@ -26,8 +47,8 @@ function saveInput() {
         searchArr.push(JSON.parse(JSON.stringify(newEntry)))
         fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex sothat he cannot decrypt it
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))//asif theris a problem around the nth-child. asif it doesnt respect the number in brackets
-        
     }
+    altCol()
 }
 function pickEntries() {
     fs.appendFileSync(dataPath + "/archival.json", '');
@@ -51,7 +72,8 @@ function pickEntries() {
         clone.dataset.timestamp = theTime
 
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
-    })        
+    })     
+    altCol()   
 } 
 function clearAll() {
     const fields = [...document.querySelectorAll('.inputs textarea')]
@@ -60,7 +82,6 @@ function clearAll() {
     }
 }
 //Dealing with the search button
-
 function searcher() {
     const theQuery = document.querySelector('#searcher').value.toLowerCase()
     if (theQuery) {
@@ -96,12 +117,9 @@ function searcher() {
             e.querySelectorAll('div').forEach(e=> e.style.color = "black")
         })
     }
-    document.querySelectorAll('.table2 .row:nth-child(odd)').forEach(e=> {
-        e.querySelectorAll('div').forEach(r=> r.style.backgroundColor = "rgb(241, 241, 243)")
-    })
+    altCol()
 }
 
 //the colors of the divs arent yet corrected, on search
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
-
 

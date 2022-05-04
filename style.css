@@ -1,6 +1,9 @@
 * {
     box-sizing: border-box;    
 }
+*:focus {
+    outline: 3px solid rgb(0, 255, 128);
+}
 body {
         background-image: linear-gradient(45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
                           linear-gradient(-45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
@@ -30,7 +33,6 @@ body {
     width: 96%;
     margin: 0 auto;
     background-color: rgb(179, 179, 179);
-    /*background-image: linear-gradient(180deg, grey, lightgrey, grey);*/
 }
 .headers > div {
     background-color: rgb(79, 92, 114);
@@ -61,35 +63,37 @@ body {
     padding: 12px 2px;
 }
 .saveInput {
-    padding: 8px;
+    height: 43px;
     background-color: rgb(0, 255, 0);
     width: 10%;
-    color: black;
     margin-left: 85%;
-    margin-top: 6px;
     font-family: serif;
     font-weight: bold;
     font-size: 20px;
     border-color: rgb(0, 255, 0);
 }
 .saveInput:hover, .saveInput:focus {
-    background-color: rgb(0, 255, 0);/*remove this on deployment*/
     border-color: rgb(0, 192, 0);
     color: white;
 }
+.trash {
+    width: 100%;
+    height: auto;
+}
 .clearAll {
-    display: inline-block;
     background-color: rgb(157, 156, 250);
-    width: 3%;
+    width: 40px;
     margin-left: 8px;
-    height: 43px;
-    border-color: rgb(164, 164, 164);
+    margin-top: 5px;
+    height: 40px;
+    border-color: rgb(157, 156, 250);
 }
 .clearAll:hover, .clearAll:focus {
     background-color: rgb(97, 96, 146);
+    border-color: rgb(97, 96, 146);
 }
-.clearAll:hover .clearInfo, .clearAll:focus .clearInfo {
-    display: inline;
+.clearAll:hover img{
+    filter: invert(100%);
 }
 .clearInfo {
     display: none;
@@ -99,7 +103,6 @@ body {
     bottom: 0;
     padding-left: 2px;
 }
-
 .section {
     position: sticky;
     top: 0;
@@ -135,11 +138,15 @@ input[type= "search"] {
     font-family: serif;
     padding: 4px;
     background-color: rgb(157, 156, 250);
-    border-color: rgb(164, 164, 164);
+    border-color: rgb(157, 156, 250);
 }
 .search:hover, .search:focus {
     color: white;
     background-color: rgb(97, 96, 146);
+    border-color: rgb(97, 96, 146);
+}
+#searcher::-webkit-search-decoration, #searcher::-webkit-search-cancel-button, #searcher::-webkit-search-results-button, #searcher::-webkit-search-results-decoration {
+    display: none;
 }
 .sadDiv {
     width: 100%;
@@ -168,9 +175,6 @@ input[type= "search"] {
 .divs div {
     padding: 8px 2px;
     background-color: lightgrey;
-}
-.table2 .row:nth-child(odd) div {
-    background-color: rgb(241, 241, 243);
 }
 .footer {
     width: 100%;
@@ -202,9 +206,10 @@ input[type= "search"] {
     font-weight: bold;
     background-color: rgb(157, 156, 250);
     font-size: 18px;
-    border-color: rgb(164, 164, 164);
+    border-color: rgb(157, 156, 250);
 }
 .exit:hover, .exit:focus {
     background-color: rgb(97, 96, 146);
+    border-color: rgb(97, 96, 146);
     color: white;
 }
