@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edgar's PRM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1 class="heading">PERSONAL RECORD MANAGER</h1>
+        <h5><i>Embracing the perks of the times</i></h5>
+        <h3 class="name">NAME: <code>your name here</code></h2>
+    </div>
+    <div class="table1">
+        <div class="row headers">
+            <div>S/N</div>
+            <div>SD REF/CRB</div>
+            <div>Complaint</div>
+            <div>Suspect</div>
+            <div>Offence</div>
+            <div>Reference</div>
+            <div>Remarks</div>
+            <div>Final disposal</div>
+        </div>
+        <div class="row inputs">
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+            <textarea name="" id=""></textarea>
+        </div>
+        <button class="saveInput" type="submit" onclick="saveInput()">Save</button>
+        <button class="clearAll" onclick="clearAll()">#pic
+            <span class="clearInfo">Clear all fields without saving</span>
+        </button>
+    </div>
+    <div class="section">
+        <p>History</p>
+        <input id="searcher" type="search" placeholder="Search here.." onkeyup="searcher()">
+        <button class="search" type="submit" onclick="searcher()">Search</button>
+        <div class="row headers">
+            <div>S/N</div>
+            <div>SD REF/CRB</div>
+            <div>Complaint</div>
+            <div>Suspect</div>
+            <div>Offence</div>
+            <div>Reference</div>
+            <div>Remarks</div>
+            <div>Final disposal</div>
+        </div>
+    </div>
+    <div class="table2">
+        <div class="row divs">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div class="footer">
+        <div><i><b>Statistics:</b></i><span class="stats">Here they are</span></br></br> 
+            <p>
+                Copyright Ntonde Edgar Isingoma </br>+256 783 103587 / +256 756 275508
+            </p>
+        </div>
+            <button class="exit">Exit</button>        
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>
