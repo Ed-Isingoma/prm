@@ -16,13 +16,54 @@ function altCol() {
             if (xSelection[r+1]) xSelection[r+1].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "lightgrey");
         }
 }
+//the edit and delete per table2 row
+const aEdit = document.createElement('button')
+aEdit.type = "button"
+aEdit.className = "aEdit"
+aEdit.onclick = ''
+aEdit.onmouseout = finishExtras
+aEdit.innerHTML = '<img src="iconsedit.png">'
+const aDelete = document.createElement('button')
+aDelete.type = 'button'
+aDelete.onclick = ''//deleteRow
+aDelete.className = "aDelete"
+aDelete.onmouseover= holdExtras
+aDelete.onmouseout = finishExtras
+aDelete.innerHTML = '<img src="iconstrash.png">'
+function addExtras(e) {
+    e.target.appendChild(aEdit)
+    e.target.appendChild(aDelete)
+}
+let heldEl;
+let aId;
+function holdExtras() {
+    clearTimeout(aId)
+}
+function remExtras(e){
+    heldEl = e.target
+    aId = setTimeout(()=> {
+        if (e.target.querySelector('.aEdit')) {
+            e.target.removeChild(aEdit)
+            e.target.removeChild(aDelete)
+        }
+    }, 200)
+}
+function finishExtras() {
+    heldEl.removeChild(aEdit)
+    heldEl.removeChild(aDelete)
+}
+
+function editRow() {
+    console.log('edited')
+}
+
 pickEntries()
 const sadDiv = document.createElement('div')//div for when no search results
 sadDiv.className = 'sadDiv'
 let theId; //this is the id of the settimeout of function showinfo
 function showInfo() {
     const theInfo = document.querySelector('.clearInfo')
-    theId = setTimeout(()=> {theInfo.style.display = "inline"}, 600)
+    theId = setTimeout(()=> {theInfo.style.display = "inline"}, 500)
 }
 function removeInfo() {
     const theInfo = document.querySelector('.clearInfo')
@@ -70,7 +111,12 @@ function pickEntries() {
         }
         clone.style.display = "flex"
         clone.dataset.timestamp = theTime
-
+        const name1 = `${theTime}1`
+        const name2 = `${theTime}2`
+        const extras = {
+            [name1]: aEdit.cloneNode(true),
+            [name2]: aDelete.cloneNode(true)
+        }
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
     })     
     altCol()   
@@ -120,6 +166,31 @@ function searcher() {
     altCol()
 }
 
-//the colors of the divs arent yet corrected, on search
+
+
+/*
+let heldDiv;
+let inTable2;
+
+function remExtras(e) {
+    if (inTable2) {
+        heldDiv = e.target
+    } else {}
+}
+function inTable() {
+    inTable2 === true ? false : true;
+    if (!inTable2) {
+        heldDiv = null
+    }
+    console.log(inTable2)
+}
+*/
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
 
+//the 'cancel edit' button in the place of the trash can
+//button for 'go back up' in the footer
+
+
+
+//Give each row its own aEdit. And they fade out on mouseout.
+//button innerhtml is undefined
