@@ -46,9 +46,8 @@ body {
 .row > * {
     width: 12.5%;
     font-family: Helvetica, sans-serif;
-    margin-left: 1px;
-    margin-right: 1px;
-    border: none;
+    border-left: 1px solid rgb(179, 179, 179);
+    border-right: 1px solid rgb(179, 179, 179);
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -62,17 +61,24 @@ body {
     resize: none;
     padding: 12px 2px;
 }
-.saveInput {
+.saveInput, .saveEdited {
     height: 43px;
     background-color: rgb(0, 255, 0);
     width: 10%;
-    margin-left: 85%;
+    margin-top: 7px;
     font-family: serif;
     font-weight: bold;
     font-size: 20px;
     border-color: rgb(0, 255, 0);
 }
-.saveInput:hover, .saveInput:focus {
+.saveInput {
+    margin-left: 82%;
+}
+.saveEdited {
+    margin-left: 78%;
+    display: none;
+}
+.saveInput:hover, .saveInput:focus, .saveEdited:hover, .saveEdited:focus {
     border-color: rgb(0, 192, 0);
     color: white;
 }
@@ -84,6 +90,7 @@ body {
     background-color: rgb(157, 156, 250);
     width: 40px;
     margin-left: 8px;
+    vertical-align: bottom;
     margin-top: 5px;
     height: 40px;
     border-color: rgb(157, 156, 250);
@@ -92,16 +99,34 @@ body {
     background-color: rgb(97, 96, 146);
     border-color: rgb(97, 96, 146);
 }
-.clearAll:hover img{
+.clearAll:hover img, .clearAll:focus img{
     filter: invert(100%);
 }
 .clearInfo {
     display: none;
     position: absolute;
+    vertical-align: bottom;
     background-color: cornsilk;
-    right: 0;
+    right: 0;/* i'll come back to correct this*/
     bottom: 0;
     padding-left: 2px;
+}
+.cutEdit {
+    background-color: rgb(0, 96, 255);
+    border-color: rgb(0, 96, 255);
+    height: 43px;
+    width: fit-content;
+    display: none;
+    font-family: serif;
+    font-weight: bold;
+    margin-left: 4px;
+    margin-top: 7px;
+    font-size: 18px;
+}
+.cutEdit:hover, .cutEdit:focus {
+    color: white;
+    background-color: rgb(97, 96, 146);
+    border-color: rgb(97, 96, 146);
 }
 .section {
     position: sticky;
@@ -121,6 +146,18 @@ body {
     width: 65%;
     display: inline-block;
     line-height: 0px;
+}
+.confirmDel {
+    display: none;
+    width: 180px;
+    border: 1px solid rgb(62, 62, 62);
+    position: absolute;
+    background-color: white;
+    top: 30px;
+    font-family: Helvetica, sans-serif;
+    font-size: 18px;
+    text-align: center;
+    left: 100px;
 }
 input[type= "search"] {
     height: 32px;
@@ -148,7 +185,7 @@ input[type= "search"] {
 #searcher::-webkit-search-decoration, #searcher::-webkit-search-cancel-button, #searcher::-webkit-search-results-button, #searcher::-webkit-search-results-decoration {
     display: none;
 }
-.sadDiv {
+.noSearch {
     width: 100%;
     background-color: lightgrey;
     text-align: center;
@@ -158,24 +195,52 @@ input[type= "search"] {
     display: none;
 }
 .table2 {
-    width: 96%;
-    margin: 0 auto 10px auto;
+    width: 100%;
+    margin-bottom: 5px;
     max-height: 500px;
     overflow: overlay;
-    background-color: rgb(156, 156, 156);
 }
-.table2 .headers {
-    position: sticky;
-    top: 0;
+.table2 > .row {
+    position: relative;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
 .divs {
     min-height: 30px;
     display: none;
 }
-.divs div {
+.divs > div {
     padding: 8px 2px;
     background-color: lightgrey;
 }
+/*.aEdit {
+    position: absolute;
+    width: 20px;
+    padding-top: 7px;
+    border: none;
+    height: 100%;
+    top: 0;
+    left: -20px;
+    background-color: rgb(157, 156, 250);
+}
+.aEdit img {
+    width: 100%;
+}
+.aDelete {
+    position: absolute;
+    background-color: rgb(157, 156, 250);
+    width: 20px;
+    top: 0;
+    padding-top: 4px;
+    height: 100%;
+    right: -8px;
+    border: none;
+}
+.aDelete img {
+    width: 100%;
+    margin-top: auto;
+}*/
 .footer {
     width: 100%;
     background-color: rgb(183, 182, 255);

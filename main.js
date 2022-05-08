@@ -1,10 +1,41 @@
-const { app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, MenuItem} = require('electron')
 const path = require('path')
 
 const thePath = app.getPath('userData')
 ipcMain.on('bringLink', (ee, argu)=> {
     ee.returnValue = thePath
 })//ee is the event and we dont need to do anything with the argument
+
+ipcMain.on('showMenu', (e, msg)=> {
+    const template = [{
+        label: 'Edit entry',
+        click() {
+            e.sender.send('clicked', 'editEntry ' + msg)
+        }
+    }, {
+        label: 'Delete entry',
+        click() {
+            e.sender.send('clicked', 'deleteEntry ' + msg)
+        }
+    }, {
+        label: 'Print selection',
+        click() {
+            e.sender.send('clicked', 'printSelection')
+        }
+    }, {
+        label: 'Scroll to top',
+        click() {
+            e.sender.send('clicked', 'scrollToTop')
+        }
+    }, {
+        label: 'Settings',
+        click() {
+            e.sender.send('clicked', 'settings')
+        }
+    }]
+    const theMenu = Menu.buildFromTemplate(template)
+    theMenu.popup(BrowserWindow.fromWebContents(e.sender))
+})
 
 //initialising the app
 let win;

@@ -35,14 +35,21 @@
             <textarea name="" id=""></textarea>
         </div>
         <button class="saveInput" type="submit" onclick="saveInput()">Save</button>
+        <button class="saveEdited" type="submit" onclick="saveEdited()">Save</button>
         <button class="clearAll" onclick="clearAll()" onfocus="showInfo()" onmouseover="showInfo()" onmouseout="removeInfo()" onblur="removeInfo()"><img src="iconstrash.png" class="trash">
             <span class="clearInfo">Clear all fields without saving</span>
         </button>
+        <button class="cutEdit" onclick="cutEdit()">Cancel Edit</button>
     </div>
     <div class="section">
         <p>History</p>
         <input id="searcher" type="search" placeholder="Search here.." onkeyup="searcher()">
         <button class="search" type="submit" onclick="searcher()">Search</button>
+        <div class="confirmDel">
+            Confirm deletion of entry</br>
+            <button class="noDel" onclick="noDelete()">Cancel</button>
+            <button class="yesDel" onclick="remEntry()">Ok</button>
+        </div>
         <div class="row headers">
             <div>S/N</div>
             <div>SD REF/CRB</div>
@@ -53,9 +60,9 @@
             <div>Remarks</div>
             <div>Final disposal</div>
         </div>
-    </div>
+    </div>        
     <div class="table2">
-        <div class="row divs">
+        <div class="row divs" oncontextmenu="contextMenu(event)">
             <div></div>
             <div></div>
             <div></div>
@@ -72,7 +79,7 @@
                 Copyright Ntonde Edgar Isingoma </br>+256 783 103587 / +256 756 275508
             </p>
         </div>
-            <button class="exit">Exit</button>        
+            <button class="exit">Exit</button>
     </div>
     <script src="renderer.js"></script>
 </body>

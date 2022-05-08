@@ -2,8 +2,45 @@ const {ipcRenderer, contextBridge} = require('electron')
 const fs = require('fs')
 const path = require('path')
 
+ipcRenderer.on('clicked', (e, message)=> {
+        const details = message.split(' ')
+        if (details[0] === 'editEntry') {
+            editEntry(details[1])
+        } else if (details[0] === 'deleteEntry') {
+            deleteEntry(details[1])
+        } else if (details[0] === 'printSelection') {
+
+        } else if (details[0] === 'scrollToTop') {
+            scrollUp()
+        } else if (details[0] === 'settings') {
+
+        }
+    })
+
+function editEntry(timestamp) {
+    const origin = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
+    const destinatn = [...document.querySelectorAll('.inputs textarea')]
+    for (let i=0; i<destinatn.length; i++) {
+        destinatn[i].value = origin[i].innerHTML
+    }
+    //document.querySelector('.table2').removeChild()
+    document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'none';
+    document.querySelector('.saveInput').style.display = 'none'
+    document.querySelector('.saveEdited').style.display = 'inline'
+    document.querySelector('.saveEdited').dataset.stamp = timestamp
+    document.querySelector('.clearAll').style.display = 'none'
+    document.querySelector('.cutEdit').style.display = 'inline'
+}
+function deleteEntry(timestamp) {
+     document.querySelector('.confirmDel').dataset.stamp = timestamp
+     document.querySelector('.confirmDel').style.display = "block"
+     //also make the rest of the page dark, and everything else unclickable, unscrollable
+}
+
+
 contextBridge.exposeInMainWorld('theDataPath', {
-    renderer: ipcRenderer,
+    renderer: {...ipcRenderer, on: ipcRenderer.on},
     fs: fs,
-    path: path
+    path: path,
+    //renderOn: rendererOn
 })

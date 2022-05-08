@@ -1,9 +1,11 @@
 const ipcRenderer = window.theDataPath.renderer
 const fs = window.theDataPath.fs
 const path = window.theDataPath.path
+//const renderOn = window.theDataPath.renderOn
 
 const dataPath = ipcRenderer.sendSync('bringLink', '')
 let searchArr;//this is the samplespace for when searching
+
 //now, making the table2 divs alter colors
 function altCol() {
     const selection = document.querySelectorAll('.table2 > .row')
@@ -16,50 +18,16 @@ function altCol() {
             if (xSelection[r+1]) xSelection[r+1].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "lightgrey");
         }
 }
-//the edit and delete per table2 row
-const aEdit = document.createElement('button')
-aEdit.type = "button"
-aEdit.className = "aEdit"
-aEdit.onclick = ''
-aEdit.onmouseout = finishExtras
-aEdit.innerHTML = '<img src="iconsedit.png">'
-const aDelete = document.createElement('button')
-aDelete.type = 'button'
-aDelete.onclick = ''//deleteRow
-aDelete.className = "aDelete"
-aDelete.onmouseover= holdExtras
-aDelete.onmouseout = finishExtras
-aDelete.innerHTML = '<img src="iconstrash.png">'
-function addExtras(e) {
-    e.target.appendChild(aEdit)
-    e.target.appendChild(aDelete)
+function contextMenu(e) {
+    e.preventDefault()
+    const msg = e.currentTarget.dataset.timestamp
+    //console.log(msg)
+    ipcRenderer.send('showMenu', msg)
 }
-let heldEl;
-let aId;
-function holdExtras() {
-    clearTimeout(aId)
-}
-function remExtras(e){
-    heldEl = e.target
-    aId = setTimeout(()=> {
-        if (e.target.querySelector('.aEdit')) {
-            e.target.removeChild(aEdit)
-            e.target.removeChild(aDelete)
-        }
-    }, 200)
-}
-function finishExtras() {
-    heldEl.removeChild(aEdit)
-    heldEl.removeChild(aDelete)
-}
-
-function editRow() {
-    console.log('edited')
-}
-
+//renderOn()
 pickEntries()
-const sadDiv = document.createElement('div')//div for when no search results
-sadDiv.className = 'sadDiv'
+const noSearch = document.createElement('div')//div for when no search results
+noSearch.className = 'noSearch'
 let theId; //this is the id of the settimeout of function showinfo
 function showInfo() {
     const theInfo = document.querySelector('.clearInfo')
@@ -79,17 +47,71 @@ function saveInput() {
         for (let i=0; i<destinatn.length; i++) {
             destinatn[i].innerHTML = origin[i].value
             newEntry.push(origin[i].value)
-            //origin[i].value = ''
+            //origin[i].value = ''  And remember to uncomment this
         }
         clone.style.display = 'flex'
-        const timestamp = Date()//change the date to only numbers. shorter
+        const dateArr = Date().toString().split(' ')
+        let timestamp = ''
+        for (let i=0; i<dateArr.length;i++) {
+            timestamp+=dateArr[i]
+        }
         newEntry.push(timestamp)
         clone.dataset.timestamp = timestamp
         searchArr.push(JSON.parse(JSON.stringify(newEntry)))
         fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex sothat he cannot decrypt it
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))//asif theris a problem around the nth-child. asif it doesnt respect the number in brackets
+    } else {
+        //say that most fields are empty
     }
     altCol()
+}
+function saveEdited() {
+    const timestamp = document.querySelector('.saveEdited').dataset.stamp
+    const destinatn = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
+    const origin = [...document.querySelectorAll('.inputs textarea')]
+    const newEntry = []
+    for (let i=0; i<destinatn.length; i++) {
+        destinatn[i].innerHTML = origin[i].value
+        newEntry.push(origin[i].value)
+    }
+    newEntry.push(timestamp)
+    for (let i=searchArr.length; i>0; i--) {
+        if (searchArr[i-1][8] === timestamp) {
+            searchArr[i-1] = JSON.parse(JSON.stringify(newEntry))
+        }
+    }
+    document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
+    document.querySelector('.saveEdited').style.display = 'none'
+    document.querySelector('.saveInput').style.display = 'inline'
+    document.querySelector('.saveEdited').dataset.stamp = ''
+    document.querySelector('.clearAll').style.display = 'inline'
+    document.querySelector('.cutEdit').style.display = 'none'
+    //reArchive()
+    //tell user that we have saved
+}
+function cutEdit() {
+    clearAll()
+    const timestamp = document.querySelector('.saveEdited').dataset.stamp
+    document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
+    document.querySelector('.saveEdited').style.display = 'none'
+    document.querySelector('.saveInput').style.display = 'inline'
+    document.querySelector('.saveEdited').dataset.stamp = ''
+    document.querySelector('.cutEdit').style.display = 'none'
+    document.querySelector('.clearAll').style.display = 'inline'
+    //tell user that we have canceled
+}
+function remEntry() {
+    document.querySelector('.confirmDel').style.display = "none"
+    const timestamp = document.querySelector('.confirmDel').dataset.stamp
+    document.querySelector('.table2').removeChild(document.querySelector(`[data-timestamp="${timestamp}"]`))
+    for (let i=searchArr.length; i>0; i--) {
+        if (searchArr[i-1][8] === timestamp) {
+            searchArr.splice(i-1, 1)
+        }
+    }
+    console.log(searchArr)
+    document.querySelector('.confirmDel').dataset.stamp = ''
+    //reArchive()
 }
 function pickEntries() {
     fs.appendFileSync(dataPath + "/archival.json", '');
@@ -99,7 +121,7 @@ function pickEntries() {
     arrEntr.pop()//removing the last array which is an empty string
     const newArrEntr = []
     arrEntr.forEach(e => newArrEntr.push(JSON.parse(e)))
-    //console.log(newArrEntr)
+    //console.log(newArrEntr[0], newArrEntr, newArrEntr[5])
     //here, arrange them in order of timestamp, if necessary 
     searchArr = JSON.parse(JSON.stringify(newArrEntr))
     newArrEntr.forEach(arr => {
@@ -111,12 +133,6 @@ function pickEntries() {
         }
         clone.style.display = "flex"
         clone.dataset.timestamp = theTime
-        const name1 = `${theTime}1`
-        const name2 = `${theTime}2`
-        const extras = {
-            [name1]: aEdit.cloneNode(true),
-            [name2]: aDelete.cloneNode(true)
-        }
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
     })     
     altCol()   
@@ -150,11 +166,11 @@ function searcher() {
         checkIsSearch()
         function checkIsSearch() {
             if (!isSearch) {
-                sadDiv.style.display = "block"
-                sadDiv.innerHTML = `No results for ${theQuery}`
-                document.querySelector('.table2').appendChild(sadDiv)
+                noSearch.style.display = "block"
+                noSearch.innerHTML = `No results for ${theQuery}`
+                document.querySelector('.table2').appendChild(noSearch)
             } else {
-                sadDiv.style.display = "none"
+                noSearch.style.display = "none"
             }
         }
     } else {
@@ -167,30 +183,10 @@ function searcher() {
 }
 
 
-
-/*
-let heldDiv;
-let inTable2;
-
-function remExtras(e) {
-    if (inTable2) {
-        heldDiv = e.target
-    } else {}
-}
-function inTable() {
-    inTable2 === true ? false : true;
-    if (!inTable2) {
-        heldDiv = null
-    }
-    console.log(inTable2)
-}
-*/
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
 
 //the 'cancel edit' button in the place of the trash can
 //button for 'go back up' in the footer
+//also add a 'scroll to top' to the contextmenu. And a 'print selection'
 
-
-
-//Give each row its own aEdit. And they fade out on mouseout.
-//button innerhtml is undefined
+//we're in the preload, now that we have the target which is the row, edit or delete
