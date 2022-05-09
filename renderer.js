@@ -5,7 +5,8 @@ const path = window.theDataPath.path
 
 const dataPath = ipcRenderer.sendSync('bringLink', '')
 let searchArr;//this is the samplespace for when searching
-
+document.querySelector('.table2').addEventListener('altColE', ()=> {altCol()})
+document.querySelector('.table2').addEventListener('delEntry', ()=> {remEntry()})
 //now, making the table2 divs alter colors
 function altCol() {
     const selection = document.querySelectorAll('.table2 > .row')
@@ -58,8 +59,9 @@ function saveInput() {
         newEntry.push(timestamp)
         clone.dataset.timestamp = timestamp
         searchArr.push(JSON.parse(JSON.stringify(newEntry)))
-        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex sothat he cannot decrypt it
-        document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))//asif theris a problem around the nth-child. asif it doesnt respect the number in brackets
+        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex (e.g encarta) sothat he cannot decrypt it
+        document.querySelector('.table2').insertBefore(clone, document.querySelector('[data-timestamp]:nth-child(1)'))
+        console.log(document.querySelector('[data-timestamp]:nth-child(1)'))//the computer is just lazy to respond to insertBefore
     } else {
         //say that most fields are empty
     }
@@ -73,6 +75,8 @@ function saveEdited() {
     for (let i=0; i<destinatn.length; i++) {
         destinatn[i].innerHTML = origin[i].value
         newEntry.push(origin[i].value)
+        origin[i].value = ''
+
     }
     newEntry.push(timestamp)
     for (let i=searchArr.length; i>0; i--) {
@@ -81,18 +85,21 @@ function saveEdited() {
         }
     }
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
+    altCol()
     document.querySelector('.saveEdited').style.display = 'none'
     document.querySelector('.saveInput').style.display = 'inline'
     document.querySelector('.saveEdited').dataset.stamp = ''
     document.querySelector('.clearAll').style.display = 'inline'
     document.querySelector('.cutEdit').style.display = 'none'
-    //reArchive()
+    reArchive()
     //tell user that we have saved
+
 }
 function cutEdit() {
     clearAll()
     const timestamp = document.querySelector('.saveEdited').dataset.stamp
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
+    altCol()
     document.querySelector('.saveEdited').style.display = 'none'
     document.querySelector('.saveInput').style.display = 'inline'
     document.querySelector('.saveEdited').dataset.stamp = ''
@@ -101,17 +108,24 @@ function cutEdit() {
     //tell user that we have canceled
 }
 function remEntry() {
-    document.querySelector('.confirmDel').style.display = "none"
-    const timestamp = document.querySelector('.confirmDel').dataset.stamp
+    const timestamp = document.querySelector('.table2').dataset.stamp
     document.querySelector('.table2').removeChild(document.querySelector(`[data-timestamp="${timestamp}"]`))
+    altCol()
     for (let i=searchArr.length; i>0; i--) {
         if (searchArr[i-1][8] === timestamp) {
             searchArr.splice(i-1, 1)
         }
     }
-    console.log(searchArr)
-    document.querySelector('.confirmDel').dataset.stamp = ''
-    //reArchive()
+    //console.log(searchArr)
+    document.querySelector('.table2').dataset.stamp = ''
+    reArchive()
+}
+function reArchive() {
+    fs.unlinkSync(dataPath + "/archival.json")
+    searchArr.forEach(newEntry => {
+        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex sothat he cannot decrypt it
+
+    })
 }
 function pickEntries() {
     fs.appendFileSync(dataPath + "/archival.json", '');
@@ -185,8 +199,3 @@ function searcher() {
 
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
 
-//the 'cancel edit' button in the place of the trash can
-//button for 'go back up' in the footer
-//also add a 'scroll to top' to the contextmenu. And a 'print selection'
-
-//we're in the preload, now that we have the target which is the row, edit or delete

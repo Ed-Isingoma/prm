@@ -147,6 +147,9 @@ body {
     display: inline-block;
     line-height: 0px;
 }
+.redoAltCol {
+    display: none;
+}
 .confirmDel {
     display: none;
     width: 180px;

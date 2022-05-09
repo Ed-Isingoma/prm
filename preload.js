@@ -16,15 +16,16 @@ ipcRenderer.on('clicked', (e, message)=> {
 
         }
     })
-
+let colorEvent = new Event('altColE')
+let delEvent = new Event('delEntry')
 function editEntry(timestamp) {
     const origin = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
     const destinatn = [...document.querySelectorAll('.inputs textarea')]
     for (let i=0; i<destinatn.length; i++) {
         destinatn[i].value = origin[i].innerHTML
     }
-    //document.querySelector('.table2').removeChild()
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'none';
+    document.querySelector('.table2').dispatchEvent(colorEvent)
     document.querySelector('.saveInput').style.display = 'none'
     document.querySelector('.saveEdited').style.display = 'inline'
     document.querySelector('.saveEdited').dataset.stamp = timestamp
@@ -32,11 +33,15 @@ function editEntry(timestamp) {
     document.querySelector('.cutEdit').style.display = 'inline'
 }
 function deleteEntry(timestamp) {
-     document.querySelector('.confirmDel').dataset.stamp = timestamp
-     document.querySelector('.confirmDel').style.display = "block"
-     //also make the rest of the page dark, and everything else unclickable, unscrollable
+    const verify = confirm("Confirm deletion of entry")
+    if (verify) {
+        document.querySelector('.table2').dataset.stamp = timestamp
+        document.querySelector('.table2').dispatchEvent(delEvent)
+    }
 }
-
+function scrollUp() {
+    window.scrollTo({top: 0, behaviour: 'smooth'})
+}
 
 contextBridge.exposeInMainWorld('theDataPath', {
     renderer: {...ipcRenderer, on: ipcRenderer.on},
