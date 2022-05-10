@@ -10,10 +10,10 @@ ipcRenderer.on('clicked', (e, message)=> {
             deleteEntry(details[1])
         } else if (details[0] === 'printSelection') {
 
-        } else if (details[0] === 'scrollToTop') {
-            scrollUp()
         } else if (details[0] === 'settings') {
 
+        } else if (details[0] === 'copy') {
+            console.log('ready to copy')
         }
     })
 let colorEvent = new Event('altColE')
@@ -26,6 +26,7 @@ function editEntry(timestamp) {
     }
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'none';
     document.querySelector('.table2').dispatchEvent(colorEvent)
+    window.scrollTo({top: 0})
     document.querySelector('.saveInput').style.display = 'none'
     document.querySelector('.saveEdited').style.display = 'inline'
     document.querySelector('.saveEdited').dataset.stamp = timestamp
@@ -38,9 +39,6 @@ function deleteEntry(timestamp) {
         document.querySelector('.table2').dataset.stamp = timestamp
         document.querySelector('.table2').dispatchEvent(delEvent)
     }
-}
-function scrollUp() {
-    window.scrollTo({top: 0, behaviour: 'smooth'})
 }
 
 contextBridge.exposeInMainWorld('theDataPath', {

@@ -5,6 +5,7 @@ const thePath = app.getPath('userData')
 ipcMain.on('bringLink', (ee, argu)=> {
     ee.returnValue = thePath
 })//ee is the event and we dont need to do anything with the argument
+ipcMain.on('quit', ()=> {app.quit()})
 
 ipcMain.on('showMenu', (e, msg)=> {
     const template = [{
@@ -18,14 +19,14 @@ ipcMain.on('showMenu', (e, msg)=> {
             e.sender.send('clicked', 'deleteEntry ' + msg)
         }
     }, {
+        label: 'Copy',
+        click() {
+            e.sender.send('clicked', 'copy')
+        }
+    }, {
         label: 'Print selection',
         click() {
             e.sender.send('clicked', 'printSelection')
-        }
-    }, {
-        label: 'Scroll to top',
-        click() {
-            e.sender.send('clicked', 'scrollToTop')
         }
     }, {
         label: 'Settings',
@@ -48,7 +49,7 @@ function createWindow() {
             enableRemoteModule: false //remove it and see what happens
         }
     })
-    win.loadFile('index.html')
+    win.loadFile('xIndex.html')
     console.log('')
 }
 app.on('ready', () => {createWindow()})

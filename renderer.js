@@ -19,12 +19,12 @@ function altCol() {
             if (xSelection[r+1]) xSelection[r+1].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "lightgrey");
         }
 }
-function contextMenu(e) {
+function contextMenuDivs(e) {
     e.preventDefault()
     const msg = e.currentTarget.dataset.timestamp
-    //console.log(msg)
     ipcRenderer.send('showMenu', msg)
 }
+
 //renderOn()
 pickEntries()
 const noSearch = document.createElement('div')//div for when no search results
@@ -195,7 +195,20 @@ function searcher() {
     }
     altCol()
 }
-
+function exitWork(){
+    const theA = document.createElement('a')
+    theA.href = "logoff.html"
+    const ev = new MouseEvent('click')
+    theA.dispatchEvent(ev)
+}
 
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
 
+/*
+italics and bold and copy. I have to firstly know how to access what has been highlighted
+statistics and batch delete and print. The highlighted thing also helps here
+The words on the logoff screen should come in in style
+Pushing to github
+Lastly, settings; 'your name here', font size, whether to sign in with pin?
+*/
+//208 first. Then print

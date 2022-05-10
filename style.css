@@ -4,7 +4,7 @@
 *:focus {
     outline: 3px solid rgb(0, 255, 128);
 }
-body {
+.indexBody {
         background-image: linear-gradient(45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
                           linear-gradient(-45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
                           linear-gradient(-45deg, transparent 75%, rgb(179, 179, 179) 80%, transparent 0),
@@ -44,12 +44,18 @@ body {
     
 }
 .row > * {
-    width: 12.5%;
+    width: calc(84%/6);
     font-family: Helvetica, sans-serif;
     border-left: 1px solid rgb(179, 179, 179);
     border-right: 1px solid rgb(179, 179, 179);
     padding-left: 2px;
     padding-right: 2px;
+}
+.row > *:nth-child(1) {
+    width: 6%;
+}
+.row > *:nth-child(2) {
+    width: 10%;
 }
 .row {
     display: flex;
@@ -92,7 +98,7 @@ body {
     margin-left: 8px;
     vertical-align: bottom;
     margin-top: 5px;
-    height: 40px;
+    height: 43px;
     border-color: rgb(157, 156, 250);
 }
 .clearAll:hover, .clearAll:focus {
@@ -217,33 +223,6 @@ input[type= "search"] {
     padding: 8px 2px;
     background-color: lightgrey;
 }
-/*.aEdit {
-    position: absolute;
-    width: 20px;
-    padding-top: 7px;
-    border: none;
-    height: 100%;
-    top: 0;
-    left: -20px;
-    background-color: rgb(157, 156, 250);
-}
-.aEdit img {
-    width: 100%;
-}
-.aDelete {
-    position: absolute;
-    background-color: rgb(157, 156, 250);
-    width: 20px;
-    top: 0;
-    padding-top: 4px;
-    height: 100%;
-    right: -8px;
-    border: none;
-}
-.aDelete img {
-    width: 100%;
-    margin-top: auto;
-}*/
 .footer {
     width: 100%;
     background-color: rgb(183, 182, 255);
@@ -280,4 +259,32 @@ input[type= "search"] {
     background-color: rgb(97, 96, 146);
     border-color: rgb(97, 96, 146);
     color: white;
+}
+.goingBody, .entryBody {
+    background-color: rgb(183, 182, 255);
+}
+.exitWord {
+    font-style: italic;
+    font-family: serif;
+    text-align: center;
+    margin-top: 250px;
+    color: blue;
+}
+.welcome {
+    animation-name: fadeWelc;
+    animation-duration: 450ms;
+    text-align: center;
+    color: blue;
+    font-size: 50px;
+    font-family: serif;
+    font-weight: bold;
+    margin-top: 250px;
+}
+@keyframes fadeWelc {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
