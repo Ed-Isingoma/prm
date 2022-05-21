@@ -84,9 +84,7 @@ function printDocBe() {
         })
         contentArr.push(vals)
     })
-    console.log(xSelection)
-    //fs.unlinkSync(dataPath + "/contentArr.json")
-    fs.writeFileSync(dataPath + '/contentArr.json', JSON.stringify(contentArr))
+    let strungArr = JSON.stringify(contentArr)
     const thePage = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -117,16 +115,12 @@ function printDocBe() {
             <div></div>
             <div></div>
         </div>
+        <div class="pgTable">
+        </div>
         <script>
         const ipcRenderer = window.theDataPath.renderer
-        const fs = window.theDataPath.fs
-        const dataPath = ipcRenderer.sendSync('bringLink', '')
-        const entries = fs.readFileSync(dataPath + '/contentArr.json')       
-        const strEntr = String.fromCharCode.apply(null, new Uint8Array(entries))
-        console.log(strEntr)        
-        const contentArr = []
-        strEntr.forEach(e => contentArr.push(JSON.parse(e)))
-        console.log(contentArr)
+        const strungArr = ipcRenderer.sendSync('bringArr')
+        const contentArr = JSON.parse(strungArr)
         contentArr.forEach(arr => {
             const clone = document.querySelector('.divs').cloneNode(true)
             const destinatn = [...clone.children]
@@ -134,13 +128,14 @@ function printDocBe() {
                 destinatn[i].innerHTML = arr[i]
             }
             clone.style.display = "flex"
-            document.querySelector('.printBody').appendChild(clone)
-        })     
+            document.querySelector('.pgTable').appendChild(clone)
+        })
+             
         </script>   
     </body>
     </html>`
     //in case there's more than one page, we see how to put headers on each page. Quite complex. PrintDiv with maximum height?
-    ipcRenderer.send('printThis', thePage)
+    ipcRenderer.send('printThis', thePage, strungArr)
 }
 document.querySelectorAll('[data-timestamp]').forEach(e=> {
     e.addEventListener('anchStamp', ()=> {
@@ -383,8 +378,6 @@ Lastly, settings; 'your name here', font size, whether to sign in with pin?
 */
 //"if it's missing any one of the first three textarea values, don't save"
 
-//remember to remove settings from the contextmenu
 //Very Long Words Must Wrap
 //we were also supposed to undo bold
 
-//theDataPath is not recognised in printable.html. ContentArr is also waiting for you. It has null values only in .config

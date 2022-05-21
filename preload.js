@@ -1,6 +1,5 @@
 const {ipcRenderer, contextBridge} = require('electron')
 const fs = require('fs')
-const path = require('path')
 
 ipcRenderer.on('clicked', (e, message)=> {
         const details = message.split(' ')
@@ -9,11 +8,19 @@ ipcRenderer.on('clicked', (e, message)=> {
         } else if (details[0] === 'deleteEntry') {
             deleteEntry(details[1])
         } else if (details[0] === 'printSelection') {
-
-        } else if (details[0] === 'settings') {
-
+            const theTxt = window.getSelection()
+            theTxt.anchorNode.dispatchEvent(new Event('anchStamp', {bubbles: true}))
+            theTxt.focusNode.dispatchEvent(new Event('focusStamp', {bubbles: true}))
         } else if (details[0] === 'copy') {
-            console.log('ready to copy')
+            const theTxt = window.getSelection()
+            navigator.clipboard.writeText(theTxt)
+        } else if (details[0] === 'selectAll') {
+            const selectn = document.querySelectorAll('.table2 > .row')
+            const xSelectn = []
+            selectn.forEach(e=> {
+                if (e.style.display === "flex") xSelectn.push(e)
+            })
+            window.getSelection().setBaseAndExtent(xSelectn[0], 0, xSelectn[xSelectn.length-1].lastChild, 0)
         }
     })
 let colorEvent = new Event('altColE')
@@ -40,10 +47,12 @@ function deleteEntry(timestamp) {
         document.querySelector('.table2').dispatchEvent(delEvent)
     }
 }
+ipcRenderer.on('miniMenu', (e, msg)=> {
+    document.querySelector('.table1 .inputs').dataset.menuSlct = msg
+    document.querySelector('.table1 .inputs').dispatchEvent(new Event('miniMenu'))
+})
 
 contextBridge.exposeInMainWorld('theDataPath', {
     renderer: {...ipcRenderer, on: ipcRenderer.on},
-    fs: fs,
-    path: path,
-    //renderOn: rendererOn
+    fs: fs
 })

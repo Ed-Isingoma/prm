@@ -8,7 +8,9 @@ ipcMain.on('bringLink', (ee, argu)=> {
 })//ee is the event and we dont need to do anything with the argument
 
 //concerning the second browserwindow
-ipcMain.on('printThis', (e, thePage)=> {
+let strungArr;
+ipcMain.on('printThis', (e, thePage, strArr)=> {
+    strungArr = strArr;
     fs.writeFileSync(__dirname + '/printable.html', thePage)
     const win = new BrowserWindow({
         width: 842,
@@ -28,6 +30,9 @@ ipcMain.on('printThis', (e, thePage)=> {
             //fs.writeFileSync(__dirname, data)
         })
     })
+})
+ipcMain.on('bringArr', (e, arg)=> {
+    e.returnValue = strungArr
 })
 
 ipcMain.on('miniMenu', (e, id)=>{

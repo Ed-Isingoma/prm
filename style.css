@@ -12,6 +12,15 @@
         background-size: 30px 30px, 30px 30px;
         background-color: rgb(71, 77, 87);
       }
+.wrapper {
+    width: 96%;
+    margin: 0 auto;
+}
+.printBody .headers {
+    width: 96%;
+    margin: 20px auto 0 auto;
+
+}
 .header {
     height: fit-content;
     width: 96%;
@@ -139,7 +148,6 @@
     top: 0;
     width: 96%;
     margin: 0 auto;
-    background-image: linear-gradient(180deg, rgb(184, 184, 184), rgb(179, 179, 179), rgb(179, 179, 179));
     background-color: rgb(179, 179, 179);
     border-top: groove;
 }
@@ -210,10 +218,20 @@ input[type= "search"] {
     overflow: overlay;
 }
 .table2 > .row {
-    position: relative;
     width: 96%;
     margin-left: auto;
     margin-right: auto;
+}
+.pgTable {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.pgTable > div:nth-child(even) > div {
+    background-color: lightgray;
+}
+.pgTable > div:nth-child(odd) > div {
+    background-color: rgb(241, 241, 243);
 }
 .divs {
     min-height: 30px;
