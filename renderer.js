@@ -1,7 +1,5 @@
 const ipcRenderer = window.theDataPath.renderer
 const fs = window.theDataPath.fs
-//const path = window.theDataPath.path
-//const {jsPDF} = window.theDataPath.jsPdf
 
 const dataPath = ipcRenderer.sendSync('bringLink', '')
 let searchArr;//this is the samplespace for when searching
@@ -20,6 +18,32 @@ function altCol() {
         }
 }
 pickEntries()
+//the UI teller
+document.querySelector('.teller').addEventListener('printed', ()=> {
+    document.querySelector('.teller').innerHTML = 'Printed successfully to ' + document.querySelector('.teller').dataset.message
+    document.querySelector('.teller').style.display = 'flex'
+    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+})
+document.querySelector('.teller').addEventListener('dontPrint', ()=> {
+    document.querySelector('.teller').innerHTML = "Please highlight within entries' region to print"
+    document.querySelector('.teller').style.display = 'flex'
+    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+})
+document.querySelector('.teller').addEventListener('savedEdited', ()=> {
+    document.querySelector('.teller').innerHTML = 'Saved entry'
+    document.querySelector('.teller').style.display = 'flex'
+    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 2000)
+})
+document.querySelector('.teller').addEventListener('cutEdit', ()=> {
+    document.querySelector('.teller').innerHTML = 'Cancelled editing'
+    document.querySelector('.teller').style.display = 'flex'
+    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 2000)
+})
+document.querySelector('.teller').addEventListener('fieldsEmpty', ()=> {
+    document.querySelector('.teller').innerHTML = 'Not saved. Atleast one major field is empty'
+    document.querySelector('.teller').style.display = 'flex'
+    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+})
 //concerning the context menus
 function contextMenuDivs(e) {
     e.preventDefault()
@@ -135,7 +159,13 @@ function printDocBe() {
     </body>
     </html>`
     //in case there's more than one page, we see how to put headers on each page. Quite complex. PrintDiv with maximum height?
-    ipcRenderer.send('printThis', thePage, strungArr)
+    const dateArr = Date().toString().split(' ')
+    dateArr.splice(-4, 4)
+        let filename = ''
+        for (let i=0; i<dateArr.length;i++) {
+            filename+=dateArr[i]
+        }
+    ipcRenderer.send('printThis', thePage, strungArr, filename)
 }
 document.querySelectorAll('[data-timestamp]').forEach(e=> {
     e.addEventListener('anchStamp', ()=> {
@@ -160,6 +190,7 @@ function removeInfo() {
     clearTimeout(theId)
 }
 function charByChar(divVal, targDiv) {
+    targDiv.innerHTML = ''
     const wrds = divVal.split(' ')
     let chars = []; 
     wrds.forEach(e=> chars.push(e.split('')))
@@ -197,14 +228,15 @@ function saveInput() {
     const destinatn = [...clone.children]
     const origin = [...document.querySelectorAll('.inputs textarea')]
     const newEntry = []
-    if (origin[0].value !== '' && origin [2].value !== '') {
+    if (origin[0].value !== '' && origin[1].value !== '' && origin [2].value !== '') {
         for (let i=0; i<destinatn.length; i++) {
             charByChar(origin[i].value, destinatn[i])//adding input value character by character to prevent malicious code
             newEntry.push(origin[i].value)
-            //origin[i].value = ''  And remember to uncomment this
+            origin[i].value = ''
         }
         clone.style.display = 'flex'
         const dateArr = Date().toString().split(' ')
+        dateArr.splice(-4, 4)
         let timestamp = ''
         for (let i=0; i<dateArr.length;i++) {
             timestamp+=dateArr[i]
@@ -223,37 +255,60 @@ function saveInput() {
         document.querySelector('.table2').insertBefore(clone, document.querySelector('[data-timestamp]:nth-child(1)'))
         console.log(document.querySelector('[data-timestamp]:nth-child(1)'))//the computer is just lazy to respond to insertBefore
     } else {
-        //say that most fields are empty
+        document.querySelector('.teller').dispatchEvent(new Event('fieldsEmpty'))
     }
     altCol()
 }
+document.querySelector('.saveEdited').addEventListener('editEntry', ()=> {
+    const timestamp = document.querySelector('.saveEdited').dataset.stamp
+    let origin;
+    for (let i=searchArr.length; i>0; i--) {
+        if (searchArr[i-1][8] === timestamp) {
+            origin = searchArr[i-1]
+        }
+    }
+    //const origin = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
+    const destinatn = [...document.querySelectorAll('.inputs textarea')]
+    for (let i=0; i<destinatn.length; i++) {
+        destinatn[i].value = origin[i]
+    }
+    document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'none';
+    document.querySelector('.table2').dispatchEvent(new Event('altColE'))
+    window.scrollTo({top: 0})
+    document.querySelector('.saveInput').style.display = 'none'
+    document.querySelector('.saveEdited').style.display = 'inline'
+    document.querySelector('.clearAll').style.display = 'none'
+    document.querySelector('.cutEdit').style.display = 'inline'
+})
 function saveEdited() {
     const timestamp = document.querySelector('.saveEdited').dataset.stamp
     const destinatn = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
     const origin = [...document.querySelectorAll('.inputs textarea')]
     const newEntry = []
-    for (let i=0; i<destinatn.length; i++) {
-        charByChar(origin[i].value, destinatn[i])
-        newEntry.push(origin[i].value)
-        origin[i].value = ''
-
-    }
-    newEntry.push(timestamp)
-    for (let i=searchArr.length; i>0; i--) {
-        if (searchArr[i-1][8] === timestamp) {
-            searchArr[i-1] = JSON.parse(JSON.stringify(newEntry))
+    if (origin[0].value !== '' && origin[1].value !== '' && origin [2].value !== '') {
+            for (let i=0; i<destinatn.length; i++) {
+            charByChar(origin[i].value, destinatn[i])
+            newEntry.push(origin[i].value)
+            origin[i].value = ''
         }
-    }
-    document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
-    altCol()
-    document.querySelector('.saveEdited').style.display = 'none'
-    document.querySelector('.saveInput').style.display = 'inline'
-    document.querySelector('.saveEdited').dataset.stamp = ''
-    document.querySelector('.clearAll').style.display = 'inline'
-    document.querySelector('.cutEdit').style.display = 'none'
-    reArchive()
-    //tell user that we have saved
-
+        newEntry.push(timestamp)
+        for (let i=searchArr.length; i>0; i--) {
+            if (searchArr[i-1][8] === timestamp) {
+                searchArr[i-1] = JSON.parse(JSON.stringify(newEntry))
+            }
+        }
+        document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
+        document.querySelector('.teller').dispatchEvent(new Event('savedEdited'))
+        altCol()
+        document.querySelector('.saveEdited').style.display = 'none'
+        document.querySelector('.saveInput').style.display = 'inline'
+        document.querySelector('.saveEdited').dataset.stamp = ''
+        document.querySelector('.clearAll').style.display = 'inline'
+        document.querySelector('.cutEdit').style.display = 'none'
+        reArchive()
+    } else {
+        document.querySelector('.teller').dispatchEvent(new Event('fieldsEmpty'))
+    }  
 }
 function cutEdit() {
     clearAll()
@@ -265,7 +320,7 @@ function cutEdit() {
     document.querySelector('.saveEdited').dataset.stamp = ''
     document.querySelector('.cutEdit').style.display = 'none'
     document.querySelector('.clearAll').style.display = 'inline'
-    //tell user that we have canceled
+    document.querySelector('.teller').dispatchEvent(new Event('cutEdit'))
 }
 function remEntry() {
     const timestamp = document.querySelector('.table2').dataset.stamp
@@ -276,14 +331,13 @@ function remEntry() {
             searchArr.splice(i-1, 1)
         }
     }
-    //console.log(searchArr)
     document.querySelector('.table2').dataset.stamp = ''
     reArchive()
 }
 function reArchive() {
     fs.unlinkSync(dataPath + "/archival.json")
     searchArr.forEach(newEntry => {
-        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")//"recognid" should be more complex sothat he cannot decrypt it
+        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")
 
     })
 }
@@ -295,7 +349,6 @@ function pickEntries() {
     arrEntr.pop()//removing the last array which is an empty string
     const newArrEntr = []
     arrEntr.forEach(e => newArrEntr.push(JSON.parse(e)))
-    //console.log(newArrEntr[0], newArrEntr, newArrEntr[5])
     searchArr = JSON.parse(JSON.stringify(newArrEntr))
     newArrEntr.forEach(arr => {
         const clone = document.querySelector('.table2').lastElementChild.cloneNode(true)
@@ -369,15 +422,9 @@ function exitWork(){
 }
 
 //statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
-
 /*
-statistics and batch delete and print.
-The words on the logoff screen should come in in style
+statistics
 Pushing to github
-Lastly, settings; 'your name here', font size, whether to sign in with pin?
 */
-//"if it's missing any one of the first three textarea values, don't save"
 
-//Very Long Words Must Wrap
-//we were also supposed to undo bold
-
+//remove html-to-text and jspdf

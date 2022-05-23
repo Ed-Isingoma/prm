@@ -5,16 +5,17 @@ const path = require('path')
 const thePath = app.getPath('userData')
 ipcMain.on('bringLink', (ee, argu)=> {
     ee.returnValue = thePath
-})//ee is the event and we dont need to do anything with the argument
+})
 
 //concerning the second browserwindow
 let strungArr;
-ipcMain.on('printThis', (e, thePage, strArr)=> {
+ipcMain.on('printThis', (e, thePage, strArr, timestamp)=> {
     strungArr = strArr;
     fs.writeFileSync(__dirname + '/printable.html', thePage)
     const win = new BrowserWindow({
-        width: 842,
+        width: 942,
         height: 595,
+        show: false,
         webPreferences: {
             preload: path.join(app.getAppPath(), 'preload.js'),
         }
@@ -24,12 +25,12 @@ ipcMain.on('printThis', (e, thePage, strArr)=> {
         win.webContents.printToPDF({
             printBackground: true,
             landscape: true
-        }, (error, data) => {
-            if (error) throw error;
-            console.log('gonna writeFileSync')
-            //fs.writeFileSync(__dirname, data)
-        })
+        }).then(data => {
+            fs.writeFileSync(__dirname + '/' + timestamp + '.pdf', data)
+            e.sender.send('printPath', __dirname + '/' + timestamp + '.pdf')
+        }).then(()=> {win.close()}).catch(err => console.log('Failed to write pdf: ' + err))
     })
+
 })
 ipcMain.on('bringArr', (e, arg)=> {
     e.returnValue = strungArr
@@ -106,11 +107,10 @@ ipcMain.on('showMenu', (e, msg)=> {
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 1200,
-        height: 650,
+        width: 1400,
+        height: 680,
         webPreferences: {
-            preload: path.join(app.getAppPath(), 'preload.js'),
-            enableRemoteModule: false //remove it and see what happens
+            preload: path.join(app.getAppPath(), 'preload.js')
         }
     })
     win.loadFile('xIndex.html')
