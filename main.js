@@ -107,12 +107,14 @@ ipcMain.on('showMenu', (e, msg)=> {
 let win;
 function createWindow() {
     win = new BrowserWindow({
-        width: 1400,
-        height: 680,
+        width: 900,
+        height: 650,
+        backgroundColor: 'rgb(185, 184, 255)',
         webPreferences: {
             preload: path.join(app.getAppPath(), 'preload.js')
         }
     })
+    win.maximize()
     win.loadFile('xIndex.html')
     console.log('')
 }

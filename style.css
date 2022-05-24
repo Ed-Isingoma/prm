@@ -9,7 +9,7 @@
         background-image: linear-gradient(45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
                           linear-gradient(-45deg, transparent 20%, rgb(179, 179, 179) 25%, transparent 25%), 
                           linear-gradient(-45deg, transparent 75%, rgb(179, 179, 179) 80%, transparent 0),
-                          radial-gradient(/*rgb(183, 182, 255)*/ rgb(179, 179, 179) 3px, transparent 0);
+                          radial-gradient(rgb(179, 179, 179) 3px, transparent 0);
         background-size: 30px 30px, 30px 30px;
         background-color: rgb(71, 77, 87);
       }
@@ -36,9 +36,12 @@
 }
 .heading, .name, h5 {
     text-align: center;
-    font-family: 'Old Man Gothic', serif;
+    font-family: 'Times New Roman', serif;
     line-height: 8px;
     font-weight: bold;
+}
+.name {
+    font-family: Times, serif;
 }
 .table1 {
     position: relative;
@@ -83,7 +86,7 @@
 .saveInput, .saveEdited {
     height: 43px;
     background-color: rgb(0, 255, 0);
-    width: 10%;
+    width: 11%;
     margin-top: 7px;
     font-family: serif;
     font-weight: bold;
@@ -94,7 +97,7 @@
     margin-left: 82%;
 }
 .saveEdited {
-    margin-left: 78%;
+    margin-left: 77%;
     display: none;
 }
 .saveInput:hover, .saveInput:focus, .saveEdited:hover, .saveEdited:focus {
@@ -255,11 +258,11 @@ input[type= "search"] {
     display: inline-block;
     width: 80%;
 }
-.footer i {
+.stats, .srchStat {
     font-size: 18px;
 }
-.stats {
-    margin-left: 5px;
+.srchStat {
+    display: none;
 }
 .footer > div > p {
     text-align: center;
@@ -280,7 +283,7 @@ input[type= "search"] {
     color: white;
 }
 .goingBody, .entryBody {
-    background-color: rgb(183, 182, 255);
+    background-color: rgb(185, 184, 255);
 }
 .exitWord {
     font-style: italic;

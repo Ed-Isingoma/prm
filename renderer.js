@@ -30,7 +30,7 @@ document.querySelector('.teller').addEventListener('dontPrint', ()=> {
     setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
 })
 document.querySelector('.teller').addEventListener('savedEdited', ()=> {
-    document.querySelector('.teller').innerHTML = 'Saved entry'
+    document.querySelector('.teller').innerHTML = 'Overwritten'
     document.querySelector('.teller').style.display = 'flex'
     setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 2000)
 })
@@ -258,6 +258,7 @@ function saveInput() {
         document.querySelector('.teller').dispatchEvent(new Event('fieldsEmpty'))
     }
     altCol()
+    statser()
 }
 document.querySelector('.saveEdited').addEventListener('editEntry', ()=> {
     const timestamp = document.querySelector('.saveEdited').dataset.stamp
@@ -267,7 +268,6 @@ document.querySelector('.saveEdited').addEventListener('editEntry', ()=> {
             origin = searchArr[i-1]
         }
     }
-    //const origin = [...document.querySelector(`[data-timestamp="${timestamp}"]`).children]
     const destinatn = [...document.querySelectorAll('.inputs textarea')]
     for (let i=0; i<destinatn.length; i++) {
         destinatn[i].value = origin[i]
@@ -308,7 +308,7 @@ function saveEdited() {
         reArchive()
     } else {
         document.querySelector('.teller').dispatchEvent(new Event('fieldsEmpty'))
-    }  
+    }
 }
 function cutEdit() {
     clearAll()
@@ -332,6 +332,7 @@ function remEntry() {
         }
     }
     document.querySelector('.table2').dataset.stamp = ''
+    statser()
     reArchive()
 }
 function reArchive() {
@@ -361,7 +362,8 @@ function pickEntries() {
         clone.dataset.timestamp = theTime
         document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
     })     
-    altCol()   
+    altCol() 
+    statser()  
 } 
 function clearAll() {
     const fields = [...document.querySelectorAll('.inputs textarea')]
@@ -379,6 +381,7 @@ function searcher() {
             e.style.display = "none"
             e.querySelectorAll('div').forEach(e=> e.style.color = "black")
         })
+        let counter = 0
         const theQueries = ['', '', '']
         const theueries = theQuery.split(' ')
         theueries.forEach(e=> theQueries.unshift(e))
@@ -387,6 +390,7 @@ function searcher() {
                 if (searchArr[i-1][r].toLowerCase().includes(theQueries[0]) && searchArr[i-1][r].toLowerCase().includes(theQueries[1]) && searchArr[i-1][r].toLowerCase().includes(theQueries[2]) && searchArr[i-1][r].toLowerCase().includes(theQueries[3])) {//this algorithm only matches the first four words. Any words placed at the beginning of the search query after this matching arent considered. Dono why
                     const theDiv = document.querySelector(`[data-timestamp="${searchArr[i-1][searchArr[i-1].length-1]}"]`)
                     theDiv.style.display = "flex"
+                    counter++
                     theDiv.querySelector(`div:nth-child(${r+1})`).style.color = "orange"
                     isThereSrch = true
                 }
@@ -406,11 +410,14 @@ function searcher() {
                 noSearch.style.display = "none"
             }
         }
+        document.querySelector('.srchStat').innerHTML = counter + ' matching entries found.'
+        document.querySelector('.srchStat').style.display = 'inline'
     } else {
         document.querySelectorAll('[data-timestamp]').forEach(e=> {
             e.style.display = "flex"
             e.querySelectorAll('div').forEach(e=> e.style.color = "black")
         })
+        document.querySelector('.srchStat').style.display = 'none'
     }
     altCol()
 }
@@ -420,11 +427,16 @@ function exitWork(){
     const ev = new MouseEvent('click')
     theA.dispatchEvent(ev)
 }
-
-//statistics counts how many have been highlighted (this could be complex), how many search results and how many are there total in the archives
-/*
-statistics
-Pushing to github
-*/
-
-//remove html-to-text and jspdf
+function cN(name) {//changeName. cN makes it look cryptic
+    document.querySelector('.name').innerHTML = 'NAME: ' + name
+}
+function statser() {
+    document.querySelector('.stats').innerHTML = 'Total entries: ' + searchArr.length   
+}
+function srchStatser() {
+    const selection = document.querySelectorAll('.table2 > .row')
+    const xSelection = []
+    selection.forEach(e=> {
+        if (e.style.display === "flex") xSelection.push(e)
+    })
+}
