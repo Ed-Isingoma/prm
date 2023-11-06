@@ -54,19 +54,16 @@ ipcMain.on('doneLoading', (e, filename)=> {
         e.sender.send('printInfo', 'Finished writeFileSync')
     }).then(()=> {printWin.close()}).then(()=>{fs.unlinkSync(thePath + '/printable.html')}).catch(err =>e.sender.send('printInfo', err))
 })
-/*ipcMain.on('doneLoadingg', (e, filename)=> {
-    printWin.webContents.printToPDF({
-        printBackground: true,
-        landscape: true
-    }, (err, data)=> {
-        if (err) e.sender.send('printInfo', err);
-        fs.writeFileSync(path.join(app.getPath('documents'), filename + '.pdf'), data)
-        mainWin.webContents.send('printPath', path.join(app.getPath('documents'), filename + '.pdf'))
-        e.sender.send('printInfo', 'Finished writeFileSync')
-    }).then(()=> {//printWin.close() //this should go away
-    }).then(()=>{fs.unlinkSync(thePath + '/printable.html')}).catch(err => 
-        e.sender.send('printInfo', err))
-})*/
+ipcMain.on('databases',(e, arg1, arg2)=> {
+    e.sender.send('databases', arg1, arg2)
+})
+let readResult = ''//the results of a read on the database
+ipcMain.on('readResultIn', (e, res)=> {
+    readResult = res
+})
+ipcMain.on('getReadResult', (e)=> {
+    e.returnValue = readResult
+})
 
 ipcMain.on('bringArr', (e, arg)=> {
     e.returnValue = strungArr

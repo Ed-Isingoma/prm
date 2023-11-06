@@ -4,52 +4,76 @@ const fs = window.theDataPath.fs
 const dataPath = ipcRenderer.sendSync('bringLink', '')
 let searchArr;//this is the samplespace for when searching
 let delID; //this is the id of the settimeout for undoing a deleted entry
-document.querySelector('.table2').addEventListener('altColE', ()=> {altCol()})
-document.querySelector('.table2').addEventListener('delEntry', ()=> {remEntry()})
+document.querySelector('.table2').addEventListener('altColE', () => { altCol() })
+document.querySelector('.table2').addEventListener('delEntry', () => { remEntry() })
 //now, making the table2 divs alter colors
-function altCol() { 
+function altCol() {
     const selection = document.querySelectorAll('.table2 > .row')
     const xSelection = []
-    selection.forEach(e=> {
+    selection.forEach(e => {
         if (e.style.display === "flex") xSelection.push(e)
     })
-        for(let r=0; r<xSelection.length; r+=2) {
-            xSelection[r].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "rgb(241, 241, 243)")
-            if (xSelection[r+1]) xSelection[r+1].querySelectorAll('div').forEach(s=> s.style.backgroundColor = "lightgrey");
-        }
+    for (let r = 0; r < xSelection.length; r += 2) {
+        xSelection[r].querySelectorAll('div').forEach(s => s.style.backgroundColor = "rgb(241, 241, 243)")
+        if (xSelection[r + 1]) xSelection[r + 1].querySelectorAll('div').forEach(s => s.style.backgroundColor = "lightgrey");
+    }
+}
+//concerning the database
+ipcRenderer.send('databases', 'connect', '')
+const makedb = 'create database if not exists prmdb'
+ipcRenderer.send('databases', 'jstQuery', makedb)
+const useDB = 'use prmdb'
+ipcRenderer.send('databases', 'jstQuery', useDB)
+const maketbl = 'create table if not exists themrecords (sn varchar(255), sdref varchar(255), complainant varchar(255), suspect varchar(255), offence varchar(255), reference varchar(255), remarks varchar(255), finaldisp varchar(255), timestamp varchar(255) primary key)'
+ipcRenderer.send('databases', 'jstQuery', maketbl)
+function readDB() {
+    const getRecords = 'select * from themrecords'
+    ipcRenderer.send('databases', 'resultQuery', getRecords)
+}
+function addenDB(arr) {
+    const insert = `insert into themrecords values ("${arr[0]}", "${arr[1]}", "${arr[2]}", "${arr[3]}", "${arr[4]}", "${arr[5]}", "${arr[6]}", "${arr[7]}", "${arr[8]}")`
+    ipcRenderer.send('databases', 'jstQuery', insert)
+}
+function scoopDB(timestamp) {
+    const toDel = `delete from themrecords where timestamp="${timestamp}"`
+    ipcRenderer.send('databases', 'jstQuery', toDel)
+}
+function changeRec(timestamp, newArr) {
+    scoopDB(timestamp)
+    addenDB(newArr)
 }
 pickEntries()
 //the UI teller
-document.querySelector('.teller').addEventListener('printed', ()=> {
+document.querySelector('.teller').addEventListener('printed', () => {
     document.querySelector('.teller').innerHTML = 'Printed successfully to ' + document.querySelector('.teller').dataset.message
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 3000)
 })
-document.querySelector('.teller').addEventListener('dontPrint', ()=> {
+document.querySelector('.teller').addEventListener('dontPrint', () => {
     document.querySelector('.teller').innerHTML = "Please highlight within entries' region to print"
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 3000)
 })
-document.querySelector('.teller').addEventListener('savedEdited', ()=> {
+document.querySelector('.teller').addEventListener('savedEdited', () => {
     document.querySelector('.teller').innerHTML = 'Overwritten'
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 2000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 2000)
 })
-document.querySelector('.teller').addEventListener('cutEdit', ()=> {
+document.querySelector('.teller').addEventListener('cutEdit', () => {
     document.querySelector('.teller').innerHTML = 'Cancelled editing'
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 2000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 2000)
 })
-document.querySelector('.teller').addEventListener('fieldsEmpty', ()=> {
+document.querySelector('.teller').addEventListener('fieldsEmpty', () => {
     document.querySelector('.teller').innerHTML = 'Not saved. Atleast one major field is empty'
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 3000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 3000)
 })
-document.querySelector('.teller').addEventListener('cutDel', ()=> {
+document.querySelector('.teller').addEventListener('cutDel', () => {
     const undoBtn = '<button class="cutDelBtn" onclick="cutDelNow()">Undo</button>'
     document.querySelector('.teller').innerHTML = 'Entry has been deleted. ' + undoBtn
     document.querySelector('.teller').style.display = 'flex'
-    setTimeout(()=> {document.querySelector('.teller').style.display = 'none'}, 4000)
+    setTimeout(() => { document.querySelector('.teller').style.display = 'none' }, 4000)
 })
 //concerning the context menus
 function contextMenuDivs(e) {
@@ -57,13 +81,13 @@ function contextMenuDivs(e) {
     const msg = e.currentTarget.dataset.timestamp
     ipcRenderer.send('showMenu', msg)
 }
-document.querySelectorAll('.row > textarea').forEach(el=> {
-    el.oncontextmenu = (e)=> {
+document.querySelectorAll('.row > textarea').forEach(el => {
+    el.oncontextmenu = (e) => {
         const msg = e.currentTarget.id
         ipcRenderer.send('miniMenu', msg)
     }
 })
-document.querySelector('.table1 .inputs').addEventListener('miniMenu', ()=> {
+document.querySelector('.table1 .inputs').addEventListener('miniMenu', () => {
     const slctd = document.querySelector('.table1 .inputs').dataset.menuSlct.split(' ')
     if (slctd[0] === 'cut') {
         const theTxt = window.getSelection()
@@ -86,14 +110,14 @@ const printEnds = []//these are the anchornode and focusnode for printing select
 function printDocBe() {
     const selection = document.querySelectorAll('.table2 > .row')
     const xSelection = [] //contains each of the divs going to printery
-    selection.forEach(e=> {
+    selection.forEach(e => {
         if (e.style.display === "flex") xSelection.push(e)
     })
     popThem()
     shiftThem()
     function popThem() {
-        for (let i=xSelection.length; i>0; i--) {
-            if (xSelection[i-1].dataset.timestamp !== printEnds[0] && xSelection[i-1].dataset.timestamp !== printEnds[1]) {
+        for (let i = xSelection.length; i > 0; i--) {
+            if (xSelection[i - 1].dataset.timestamp !== printEnds[0] && xSelection[i - 1].dataset.timestamp !== printEnds[1]) {
                 xSelection.pop()
             } else {
                 break
@@ -108,9 +132,9 @@ function printDocBe() {
         } while (stamp !== printEnds[0] && stamp !== printEnds[1])
     }
     const contentArr = []
-    xSelection.forEach(e=> {
+    xSelection.forEach(e => {
         const vals = []
-        e.querySelectorAll('div').forEach(r=> {
+        e.querySelectorAll('div').forEach(r => {
             vals.push(r.innerHTML)
         })
         contentArr.push(vals)
@@ -185,11 +209,11 @@ function printDocBe() {
     //in case there's more than one page, we see how to put headers on each page. Quite complex. PrintDiv with maximum height?    
     ipcRenderer.send('printThis', thePage, strungArr)
 }
-document.querySelectorAll('[data-timestamp]').forEach(e=> {
-    e.addEventListener('anchStamp', ()=> {
+document.querySelectorAll('[data-timestamp]').forEach(e => {
+    e.addEventListener('anchStamp', () => {
         printEnds[0] = e.dataset.timestamp
     })
-    e.addEventListener('focusStamp', ()=> {
+    e.addEventListener('focusStamp', () => {
         printEnds[1] = e.dataset.timestamp
         printDocBe()
     })
@@ -200,7 +224,7 @@ noSearch.className = 'noSearch'
 let theId; //this is the id of the settimeout of function showinfo
 function showInfo() {
     const theInfo = document.querySelector('.clearInfo')
-    theId = setTimeout(()=> {theInfo.style.display = "inline"}, 500)
+    theId = setTimeout(() => { theInfo.style.display = "inline" }, 500)
 }
 function removeInfo() {
     const theInfo = document.querySelector('.clearInfo')
@@ -210,33 +234,33 @@ function removeInfo() {
 function charByChar(divVal, targDiv) {
     targDiv.innerHTML = ''
     const wrds = divVal.split(' ')
-    let chars = []; 
-    wrds.forEach(e=> chars.push(e.split('')))
-    chars.forEach(e=> e.push(' '))
+    let chars = [];
+    wrds.forEach(e => chars.push(e.split('')))
+    chars.forEach(e => e.push(' '))
     const charrs = chars.flat()
     let startingPt = 0
     addNoBold()
-    function addNoBold () {
-        for (let r=startingPt; r<charrs.length; r++) {
-            if (charrs[r] === '<' && charrs[r+1] === 'b' && charrs[r+2] === '>') {
-                    charrs.splice(r, 3)
-                    startingPt = r
-                    addBold()
-                    break;
+    function addNoBold() {
+        for (let r = startingPt; r < charrs.length; r++) {
+            if (charrs[r] === '<' && charrs[r + 1] === 'b' && charrs[r + 2] === '>') {
+                charrs.splice(r, 3)
+                startingPt = r
+                addBold()
+                break;
             } else {
-                targDiv.innerHTML+= charrs[r]
+                targDiv.innerHTML += charrs[r]
             }
         }
     }
     function addBold() {
-        for (let x=startingPt; x<charrs.length; x++) {
-            if (charrs[x] === '<' && charrs[x+1] === '/' && charrs[x+2] === 'b' && charrs[x+3] === '>') {
+        for (let x = startingPt; x < charrs.length; x++) {
+            if (charrs[x] === '<' && charrs[x + 1] === '/' && charrs[x + 2] === 'b' && charrs[x + 3] === '>') {
                 charrs.splice(x, 4)
                 startingPt = x
                 addNoBold()
                 break;
             } else {
-                targDiv.innerHTML+= '<b>' + charrs[x] + '</b>'
+                targDiv.innerHTML += '<b>' + charrs[x] + '</b>'
             }
         }
     }
@@ -246,8 +270,8 @@ function saveInput() {
     const destinatn = [...clone.children]
     const origin = [...document.querySelectorAll('.inputs textarea')]
     const newEntry = []
-    if (origin[0].value !== '' && origin[1].value !== '' && origin [2].value !== '') {
-        for (let i=0; i<destinatn.length; i++) {
+    if (origin[0].value !== '' && origin[1].value !== '' && origin[2].value !== '') {
+        for (let i = 0; i < destinatn.length; i++) {
             charByChar(origin[i].value, destinatn[i])//adding input value character by character to prevent malicious code
             newEntry.push(origin[i].value)
             origin[i].value = ''
@@ -255,18 +279,18 @@ function saveInput() {
         clone.style.display = 'flex'
         const dateArr = Date().toString().split(' ')
         dateArr.splice(-4, 4)
-        let timestamp = ''
-        for (let i=0; i<dateArr.length;i++) {
-            timestamp+=dateArr[i]
+        let timestamp = ""
+        for (let i = 0; i < dateArr.length; i++) {
+            timestamp += dateArr[i]
         }
         newEntry.push(timestamp)
         clone.dataset.timestamp = timestamp
         searchArr.push(JSON.parse(JSON.stringify(newEntry)))
-        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")
-        clone.addEventListener('anchStamp', ()=> {
+        addenDB(newEntry)
+        clone.addEventListener('anchStamp', () => {
             printEnds[0] = clone.dataset.timestamp
         })
-        clone.addEventListener('focusStamp', ()=> {
+        clone.addEventListener('focusStamp', () => {
             printEnds[1] = clone.dataset.timestamp
             printDocBe()
         })
@@ -277,21 +301,21 @@ function saveInput() {
     altCol()
     statser()
 }
-document.querySelector('.saveEdited').addEventListener('editEntry', ()=> {
+document.querySelector('.saveEdited').addEventListener('editEntry', () => {
     const timestamp = document.querySelector('.saveEdited').dataset.stamp
     let origin;
-    for (let i=searchArr.length; i>0; i--) {
-        if (searchArr[i-1][8] === timestamp) {
-            origin = searchArr[i-1]
+    for (let i = searchArr.length; i > 0; i--) {
+        if (searchArr[i - 1][8] === timestamp) {
+            origin = searchArr[i - 1]
         }
     }
     const destinatn = [...document.querySelectorAll('.inputs textarea')]
-    for (let i=0; i<destinatn.length; i++) {
+    for (let i = 0; i < destinatn.length; i++) {
         destinatn[i].value = origin[i]
     }
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'none';
     document.querySelector('.table2').dispatchEvent(new Event('altColE'))
-    window.scrollTo({top: 0})
+    window.scrollTo({ top: 0 })
     document.querySelector('.saveInput').style.display = 'none'
     document.querySelector('.saveEdited').style.display = 'inline'
     document.querySelector('.clearAll').style.display = 'none'
@@ -303,15 +327,16 @@ function saveEdited() {
     const origin = [...document.querySelectorAll('.inputs textarea')]
     const newEntry = []
     if (origin[0].value !== '' && origin[1].value !== '' && origin[2].value !== '') {
-            for (let i=0; i<destinatn.length; i++) {
+        for (let i = 0; i < destinatn.length; i++) {
             charByChar(origin[i].value, destinatn[i])
             newEntry.push(origin[i].value)
             origin[i].value = ''
         }
         newEntry.push(timestamp)
-        for (let i=searchArr.length; i>0; i--) {
-            if (searchArr[i-1][8] === timestamp) {
-                searchArr[i-1] = JSON.parse(JSON.stringify(newEntry))
+        changeRec(timestamp, newEntry)
+        for (let i = searchArr.length; i > 0; i--) {
+            if (searchArr[i - 1][8] === timestamp) {
+                searchArr[i - 1] = JSON.parse(JSON.stringify(newEntry))
             }
         }
         document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = 'flex'
@@ -322,7 +347,6 @@ function saveEdited() {
         document.querySelector('.saveEdited').dataset.stamp = ''
         document.querySelector('.clearAll').style.display = 'inline'
         document.querySelector('.cutEdit').style.display = 'none'
-        reArchive()
     } else {
         document.querySelector('.teller').dispatchEvent(new Event('fieldsEmpty'))
     }
@@ -344,17 +368,17 @@ function remEntry() {
     document.querySelector(`[data-timestamp="${timestamp}"]`).style.display = "none"
     altCol()
     document.querySelector('.teller').dispatchEvent(new Event('cutDel'))
-    delID = setTimeout(()=> {
+    delID = setTimeout(() => {
         document.querySelector('.table2').removeChild(document.querySelector(`[data-timestamp="${timestamp}"]`))
-        for (let i=searchArr.length; i>0; i--) {
-            if (searchArr[i-1][8] === timestamp) {
-                searchArr.splice(i-1, 1)
+        for (let i = searchArr.length; i > 0; i--) {
+            if (searchArr[i - 1][8] === timestamp) {
+                searchArr.splice(i - 1, 1)
             }
         }
         document.querySelector('.table2').dataset.stamp = 'removed'
         statser()
-        reArchive()    
-    }, 4500)    
+        scoopDB(timestamp)
+    }, 4500)
 }
 function cutDelNow() {
     clearTimeout(delID)
@@ -364,38 +388,37 @@ function cutDelNow() {
     document.querySelector('.table2').dataset.stamp = 'removed'
     document.querySelector('.teller').style.display = 'none'
 }
-function reArchive() {
-    fs.unlinkSync(dataPath + "/archival.json")
-    searchArr.forEach(newEntry => {
-        fs.appendFileSync(dataPath + "/archival.json", JSON.stringify(newEntry) + "ReCoGnId")
-    })
+function pickEntries(arrIsReady = 0) {
+    if (!arrIsReady) {
+        readDB()
+        return
+    } else {
+        //console.log('now DB ready')
+        let newArrEntr = []
+        const dbRead = JSON.parse(ipcRenderer.sendSync('getReadResult'))
+        dbRead.forEach(obj => {
+            const innerArr = [...Object.values(obj)] //because obj is actually not an iterable object. it even came from unscrupulous places.
+            newArrEntr.push(innerArr)
+        })
+        searchArr = JSON.parse(JSON.stringify(newArrEntr))
+        newArrEntr.forEach(arr => {
+            const clone = document.querySelector('.table2').lastElementChild.cloneNode(true)
+            const destinatn = [...clone.children]
+            const theTime = arr.pop()
+            for (let i = 0; i < destinatn.length; i++) {
+                charByChar(arr[i], destinatn[i])
+            }
+            clone.style.display = "flex"
+            clone.dataset.timestamp = theTime
+            document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
+        })
+        altCol()
+        statser()
+    }
 }
-function pickEntries() {
-    fs.appendFileSync(dataPath + "/archival.json", '');
-    const entries = fs.readFileSync(dataPath + '/archival.json')
-    const strEntr = String.fromCharCode.apply(null, new Uint8Array(entries))
-    const arrEntr = strEntr.split('ReCoGnId')
-    arrEntr.pop()//removing the last array which is an empty string
-    const newArrEntr = []
-    arrEntr.forEach(e => newArrEntr.push(JSON.parse(e)))
-    searchArr = JSON.parse(JSON.stringify(newArrEntr))
-    newArrEntr.forEach(arr => {
-        const clone = document.querySelector('.table2').lastElementChild.cloneNode(true)
-        const destinatn = [...clone.children]
-        const theTime = arr.pop()
-        for (let i=0; i<destinatn.length; i++) {
-            charByChar(arr[i], destinatn[i])
-        }
-        clone.style.display = "flex"
-        clone.dataset.timestamp = theTime
-        document.querySelector('.table2').insertBefore(clone, document.querySelector('.table2 .row:nth-child(1)'))
-    })     
-    altCol() 
-    statser()  
-} 
 function clearAll() {
     const fields = [...document.querySelectorAll('.inputs textarea')]
-    for (let i=0; i<fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].value = ''
     }
 }
@@ -405,21 +428,21 @@ function searcher() {
     if (theQuery) {
         let isThereSrch = false;
         checkIsThereSrch()
-        document.querySelectorAll('.table2 .divs').forEach(e=> {
+        document.querySelectorAll('.table2 .divs').forEach(e => {
             e.style.display = "none"
-            e.querySelectorAll('div').forEach(e=> e.style.color = "black")
+            e.querySelectorAll('div').forEach(e => e.style.color = "black")
         })
         let counter = 0
         const theQueries = ['', '', '']
         const theueries = theQuery.split(' ')
-        theueries.forEach(e=> theQueries.unshift(e))
-        for (let i=searchArr.length; i>0; i--) {
-            for (let r=0; r<searchArr[i-1].length-1; r++) {
-                if (searchArr[i-1][r].toLowerCase().includes(theQueries[0]) && searchArr[i-1][r].toLowerCase().includes(theQueries[1]) && searchArr[i-1][r].toLowerCase().includes(theQueries[2]) && searchArr[i-1][r].toLowerCase().includes(theQueries[3])) {//this algorithm only matches the first four words. Any words placed at the beginning of the search query after this matching arent considered. Dono why
-                    const theDiv = document.querySelector(`[data-timestamp="${searchArr[i-1][searchArr[i-1].length-1]}"]`)
+        theueries.forEach(e => theQueries.unshift(e))
+        for (let i = searchArr.length; i > 0; i--) {
+            for (let r = 0; r < searchArr[i - 1].length - 1; r++) {
+                if (searchArr[i - 1][r].toLowerCase().includes(theQueries[0]) && searchArr[i - 1][r].toLowerCase().includes(theQueries[1]) && searchArr[i - 1][r].toLowerCase().includes(theQueries[2]) && searchArr[i - 1][r].toLowerCase().includes(theQueries[3])) {//this algorithm only matches the first four words. Any words placed at the beginning of the search query after this matching arent considered. Dono why
+                    const theDiv = document.querySelector(`[data-timestamp="${searchArr[i - 1][searchArr[i - 1].length - 1]}"]`)
                     theDiv.style.display = "flex"
                     counter++
-                    theDiv.querySelector(`div:nth-child(${r+1})`).style.color = "orange"
+                    theDiv.querySelector(`div:nth-child(${r + 1})`).style.color = "orange"
                     isThereSrch = true
                 }
             }
@@ -441,27 +464,27 @@ function searcher() {
         document.querySelector('.srchStat').innerHTML = 'Matching search results found: ' + counter
         document.querySelector('.srchStat').style.display = 'inline'
     } else {
-        document.querySelectorAll('[data-timestamp]').forEach(e=> {
+        document.querySelectorAll('[data-timestamp]').forEach(e => {
             e.style.display = "flex"
-            e.querySelectorAll('div').forEach(e=> e.style.color = "black")
+            e.querySelectorAll('div').forEach(e => e.style.color = "black")
         })
         document.querySelector('.srchStat').style.display = 'none'
     }
     altCol()
 }
-function exitWork(){
+function exitWork() {
     const theA = document.createElement('a')
     theA.href = "logoff.html"
     const ev = new MouseEvent('click')
     theA.dispatchEvent(ev)
-} 
+}
 cN()
-function cN(name= 0) {//changeName. cN makes it look cryptic
+function cN(name = 0) {//changeName. cN makes it look cryptic
     if (name) {
         fs.writeFileSync(dataPath + '/name.json', name)
         document.querySelector('.name').innerHTML = 'NAME: ' + name
     } else {
-        fs.readFile(dataPath + '/name.json', (err, data)=> {
+        fs.readFile(dataPath + '/name.json', (err, data) => {
             if (err) {
                 document.querySelector('.name').innerHTML = 'NAME:'
             } else {
